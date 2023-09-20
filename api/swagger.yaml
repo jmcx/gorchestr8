@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: AI workload orchestrator
+  description: This API lets you easily deploy containerized AI workloads onto GPU-enabled
+    nodes.
+  version: 0.0.1
+servers:
+- url: /
+paths:
+  /workloads:
+    post:
+      summary: Create a new workload
+      description: ""
+      operationId: ""
+      requestBody:
+        description: Workload to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workload'
+        required: true
+      responses:
+        default:
+          description: Default successful response
+          content:
+            application/json:
+              examples:
+                exampleResponse:
+                  value: |-
+                    {
+                      "workload":"deployed"
+                    }
+components:
+  schemas:
+    Workload:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+      example:
+        name: mywebserver
+        image: nginx:latest

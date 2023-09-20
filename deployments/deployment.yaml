@@ -1,0 +1,19 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: gorchestr8 
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: gorchestr8
+  template: 
+    metadata: 
+      labels:
+        app: gorchestr8
+    spec:
+      containers:
+        - name: gorchestr8
+          image: jmcx/gorchestr8:alpha
+          ports:
+          - containerPort: 3333
