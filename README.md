@@ -1,8 +1,12 @@
 # gorchestr8
 
+[![Quick overview of gorchestr8](http://img.youtube.com/vi/IJwfsCJzYWE/0.jpg)](https://youtu.be/IJwfsCJzYWE "Quick overview of gorchestr8")
+
+
 ## Introduction 
 
-`gorchestr8` is a workload orchestrator for Kubernetes written in Go. It is a toy project that I'm using to experiment with a number of technologies and ideas:
+`gorchestr8` is a workload orchestrator for Kubernetes written in Go. The idea behind it is to provide a service that can democratize access to various types of compute resources for different skill levels and developer experiences. For example, `gorchestr8` could make it easy for anyone to run AI workloads on any compute infrastructure, on any cloud provider. It is a toy project that I'm using to experiment with a number of technologies and ideas:
+
 * Go programming
 * Creating APIs
 * Provisioning workloads on Kubernetes
@@ -11,7 +15,7 @@ The diagram below gives an idea of what it does today and what the next steps ar
 
 ![](assets/gorchestr8-concept.png)
 
-gorchestr8 is a Go application that exposes an API that expects a `POST` request on its `/workloads` endpoint with a JSON request payload that contains a workload name and reference to a container image, for example:
+gorchestr8 is a Go application that runs on Kubernetes and exposes an API that expects a `POST` request on its `/workloads` endpoint with a JSON request payload that contains a workload name and reference to a container image, for example:
 
 ```json
 {
@@ -19,6 +23,8 @@ gorchestr8 is a Go application that exposes an API that expects a `POST` request
     "image": "ai-research/texttospeachmodel:1.12"
 }
 ```
+
+It then proceeds to deploy the specified workload onto the same Kubernetes cluster that `gorchestr8` is running on. 
 
 ## How to
 

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"path/filepath"
 
@@ -21,16 +19,11 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-const keyServerAddr = "serverAddr"
-
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 
 	// Create a new Workload object
-	var workload Workload
-
-	err := decodeJSONBody(w, r, &workload)
-	if err != nil {
+	workload := &Workload{}
+	if err := decodeJSONBody(w, r, &workload); err != nil {
 		var mr *malformedRequest
 		if errors.As(err, &mr) {
 			http.Error(w, mr.msg, mr.status)
@@ -84,7 +77,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Create Deployment
 	fmt.Println("Creating deployment...")
-	result, err := deploymentsClient.Create(ctx, deployment, metav1.CreateOptions{})
+	result, err := deploymentsClient.Create(r.Context(), deployment, metav1.CreateOptions{})
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -98,7 +91,6 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -130,22 +122,12 @@ func main() {
 		clientset: clientset,
 	}
 	mux.Handle("/workloads", s)
-	ctx := context.Background()
 	server := &http.Server{
 		Addr:    ":3333",
 		Handler: mux,
-		BaseContext: func(l net.Listener) context.Context {
-			ctx = context.WithValue(ctx, keyServerAddr, l.Addr().String())
-			return ctx
-		},
 	}
 
-	err = server.ListenAndServe()
-	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
-	} else if err != nil {
-		fmt.Printf("error listening for server: %s\n", err)
-	}
+	log.Fatal(server.ListenAndServe())
 }
 
 type server struct {
